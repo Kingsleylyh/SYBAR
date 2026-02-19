@@ -1,33 +1,52 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Home, Map as MapIcon, CreditCard, User } from 'lucide-react-native';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarActiveTintColor: '#FF7A00', // Vibrant Orange
+        tabBarInactiveTintColor: '#A0A0A0', // Muted Gray
+        tabBarShowLabel: false, // Hides text to match the design's clean look
+        tabBarStyle: {
+          position: 'absolute',
+          backgroundColor: '#F4F4F5',
+          borderRadius: 40,
+          marginHorizontal: 20,
+          marginBottom: 20,
+          height: 65,
+          borderTopWidth: 0,
+          elevation: 5,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 10,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Home size={26} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="map"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <MapIcon size={26} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="payment"
+        options={{
+          tabBarIcon: ({ color }) => <CreditCard size={26} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          tabBarIcon: ({ color }) => <User size={26} color={color} />,
         }}
       />
     </Tabs>
