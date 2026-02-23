@@ -6,49 +6,26 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#FF7A00', // Vibrant Orange
-        tabBarInactiveTintColor: '#A0A0A0', // Muted Gray
-        tabBarShowLabel: false, // Hides text to match the design's clean look
+        tabBarActiveTintColor: '#2563EB', 
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: '#F4F4F5',
-          borderRadius: 40,
-          marginHorizontal: 20,
-          marginBottom: 20,
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 1,
+          borderTopColor: '#E2E8F0',
           height: 65,
-          borderTopWidth: 0,
-          elevation: 5,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 10,
+          paddingBottom: 8,
+          paddingTop: 8,
         },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+        }
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          tabBarIcon: ({ color }) => <Home size={26} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="map"
-        options={{
-          tabBarIcon: ({ color }) => <MapIcon size={26} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="payment"
-        options={{
-          tabBarIcon: ({ color }) => <CreditCard size={26} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="account"
-        options={{
-          tabBarIcon: ({ color }) => <User size={26} color={color} />,
-        }}
-      />
+      <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color }) => <Home size={24} color={color} /> }} />
+      <Tabs.Screen name="map" options={{ title: 'Map', tabBarIcon: ({ color }) => <MapIcon size={24} color={color} /> }} />
+      <Tabs.Screen name="payment" options={{ title: 'Payment', tabBarIcon: ({ color }) => <CreditCard size={24} color={color} /> }} />
+      <Tabs.Screen name="account" options={{ title: 'Profile', tabBarIcon: ({ color }) => <User size={24} color={color} /> }} />
     </Tabs>
   );
 }

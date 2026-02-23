@@ -12,9 +12,9 @@
       "supportsTablet": true
     },
     "splash": {
-    "image": "./assets/splash-icon.png", 
+    "image": "./assets/images/SYBAR-Logo.png",
     "resizeMode": "contain",
-    "backgroundColor": "#FF9F43"
+    "backgroundColor": "#FFFFFF"
     },
     "android": {
       "adaptiveIcon": {
