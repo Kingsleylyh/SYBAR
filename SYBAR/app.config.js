@@ -6,7 +6,7 @@ export default {
     slug: "SYBAR",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/SYBAR-Logo.png",
     scheme: "sybar",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
@@ -22,15 +22,14 @@ export default {
       }
     },
     splash: {
-      image: "./assets/splash-icon.png",
+      image: "./assets/images/SYBAR-Logo.png",
       resizeMode: "contain",
-      backgroundColor: "#FF9F43"
+      backgroundColor: "#FFFFFF"
     },
     android: {
       package: "com.rt4.sybar",
       config: {
         googleMaps: {
-          // Uses the key from your .env file
           apiKey: process.env.GOOGLE_MAPS_API_KEY_ANDROID
         }
       },
@@ -52,7 +51,7 @@ export default {
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/SYBAR-Logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -71,7 +70,6 @@ export default {
       eas: {
         projectId: "eff145c2-5375-4639-845c-75c48c3dcc22"
       },
-      // This allows you to use the key inside your TypeScript components
       googleMapsApiKeyAndroid: process.env.GOOGLE_MAPS_API_KEY_ANDROID,
       googleMapsApiKeyIos: process.env.GOOGLE_MAPS_API_KEY_IOS,
     }

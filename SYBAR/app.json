@@ -4,12 +4,12 @@
     "slug": "SYBAR",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/SYBAR-Logo.png",
     "scheme": "sybar",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.yourname.project",
+      "bundleIdentifier": "com.rt4.sybar",
       "config": {
         "googleMapsApiKey": ""
       },
@@ -24,7 +24,7 @@
     "backgroundColor": "#FFFFFF"
     },
     "android": {
-      "package": "com.yourname.project",
+      "package": "com.rt4.sybar",
       "config": {
         "googleMaps": {
           "apiKey": ""
@@ -48,7 +48,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/SYBAR-Logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
