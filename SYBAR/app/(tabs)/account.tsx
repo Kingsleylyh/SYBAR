@@ -1,20 +1,22 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { ChevronRight, LogOut, Info, Edit3, Shield } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { ChevronRight, LogOut, Info, Edit3, Shield } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function AccountScreen() {
   const menuItems = [
-    { icon: Info, label: 'About Us' },
-    { icon: Edit3, label: 'Edit Profile' },
-    { icon: Shield, label: 'Privacy & Security' },
+    { icon: Info, label: "About Us" },
+    { icon: Edit3, label: "Edit Profile" },
+    { icon: Shield, label: "Privacy & Security" },
   ];
 
   return (
-    <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 40 }}>
-      
-      <LinearGradient 
-        colors={['#FFFFFF', '#E2E8F0']}
+    <ScrollView
+      className="flex-1 bg-white"
+      contentContainerStyle={{ paddingBottom: 40 }}
+    >
+      <LinearGradient
+        colors={["#FFFFFF", "#E2E8F0"]}
         className="pt-16 pb-24 rounded-b-[40px] items-center border-b border-gray-200"
       >
         <Text className="text-[#0F172A] text-xl font-bold mb-4">Profile</Text>
@@ -42,7 +44,9 @@ export default function AccountScreen() {
 
         <View className="flex-row justify-between mb-8 gap-x-4">
           <View className="flex-1 bg-white border border-gray-200 p-4 rounded-2xl items-center shadow-sm">
-            <Text className="text-gray-500 text-xs mb-2">Distance Traveled</Text>
+            <Text className="text-gray-500 text-xs mb-2">
+              Distance Traveled
+            </Text>
             <Text className="text-[#0F172A] font-black text-2xl">1,247</Text>
             <Text className="text-gray-400 text-xs">miles</Text>
           </View>
@@ -57,12 +61,17 @@ export default function AccountScreen() {
 
         <View className="gap-y-3">
           {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} className="flex-row items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100">
+            <TouchableOpacity
+              key={index}
+              className="flex-row items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100"
+            >
               <View className="flex-row items-center">
                 <View className="bg-[#2563EB] p-2 rounded-full mr-4">
                   <item.icon color="white" size={20} />
                 </View>
-                <Text className="text-base font-bold text-[#0F172A]">{item.label}</Text>
+                <Text className="text-base font-bold text-[#0F172A]">
+                  {item.label}
+                </Text>
               </View>
               <ChevronRight color="#2563EB" size={20} />
             </TouchableOpacity>
@@ -73,7 +82,9 @@ export default function AccountScreen() {
             <Text className="text-white font-bold">LOGOUT</Text>
           </TouchableOpacity>
         </View>
-        <Text className="text-center text-gray-400 text-sm mt-10">SYBAR App Version 1.1.0</Text>
+        <Text className="text-center text-gray-400 text-sm mt-10">
+          SYBAR App Version 1.1.0
+        </Text>
       </View>
     </ScrollView>
   );

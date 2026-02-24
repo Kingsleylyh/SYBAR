@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image } from 'react-native';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useState, useEffect } from "react";
+import { View, Text, Image } from "react-native";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { LinearGradient } from "expo-linear-gradient";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -12,7 +12,7 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        await new Promise((resolve) => setTimeout(resolve, 2500));
       } catch (e) {
         console.warn(e);
       } finally {
@@ -25,12 +25,12 @@ export default function RootLayout() {
 
   if (!appIsReady) {
     return (
-      <LinearGradient 
-        colors={['#FFFFFF', '#E2E8F0']} 
+      <LinearGradient
+        colors={["#FFFFFF", "#E2E8F0"]}
         className="flex-1 items-center justify-center relative"
       >
-        <Image 
-          source={require('../assets/images/SYBAR-Logo.png')} 
+        <Image
+          source={require("../assets/images/SYBAR-Logo.png")}
           className="w-32 h-32 rounded-3xl bg-white shadow-lg"
           resizeMode="contain"
         />
