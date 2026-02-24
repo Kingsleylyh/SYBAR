@@ -9,7 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.yourname.project",
+      "config": {
+        "googleMapsApiKey": ""
+      },
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "splash": {
     "image": "./assets/images/SYBAR-Logo.png",
@@ -17,6 +24,12 @@
     "backgroundColor": "#FFFFFF"
     },
     "android": {
+      "package": "com.yourname.project",
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      },
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -48,6 +61,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "eff145c2-5375-4639-845c-75c48c3dcc22"
+      }
     }
   }
 }
