@@ -5,12 +5,32 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  Button,
 } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
+import MapView, {
+  Marker,
+  PROVIDER_GOOGLE,
+  Region,
+  Polyline,
+} from "react-native-maps";
 import * as Location from "expo-location";
 import Constants from "expo-constants";
 import "react-native-get-random-values";
 import LocationSearchBar from "../../components/ui/LocationSearchBar";
+import { fetchRouteData } from "@/services/RouteService";
+import { LatLng, RouteRequest, RouteResponse } from "@/types/routes";
+import { ROUTE_WAYPOINTS, getWaypointStyle } from "@/types/routeMarkers";
+import { RouteDetailsCard } from "@/components/ui/RouteDetailsCard";
+import {
+  drive_multi,
+  drive_multi_dt,
+  drive_simple,
+  transit,
+  transit_dt,
+  two_wheeler_multi,
+  two_wheeler_multi_dt,
+  two_wheeler_simple,
+} from "@/services/TestData";
 
 // Define the keys from the app.config.js 'extra' section
 const { googleMapsApiKeyAndroid, googleMapsApiKeyIos } =
@@ -42,6 +62,8 @@ export default function MapScreen() {
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const [placeId, setPlaceId] = useState("");
   const [address, setAddress] = useState("");
+  const [activeRoute, setActiveRoute] = useState<RouteResponse | null>(null);
+  const [finalRouteData, setFinalRouteData] = useState<any>(null);
 
   useEffect(() => {
     initializeLocation();
@@ -215,6 +237,22 @@ export default function MapScreen() {
     mapRef.current?.animateToRegion(newRegion, 1000);
   };
 
+  const handleFetchRoute = async (request: RouteRequest) => {
+    try {
+      const result = await fetchRouteData(request);
+      setActiveRoute(result);
+      setFinalRouteData(result);
+
+      // Auto-fit the map to show the entire route
+      mapRef.current?.fitToCoordinates(result.routeCoord, {
+        edgePadding: { top: 80, right: 40, bottom: 80, left: 40 },
+        animated: true,
+      });
+    } catch (err) {
+      Alert.alert("Error", "Could not calculate route.");
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -233,14 +271,91 @@ export default function MapScreen() {
         showsUserLocation={hasLocationPermission} // Blue dot only if permitted
         showsMyLocationButton={hasLocationPermission} // Shows the "Center on Me" button if permitted
       >
-        <Marker coordinate={region} title="Starting Point" />
+        {/* <Marker coordinate={region} title="Current Location" /> */}
+
+        {activeRoute ? (
+          // ── Route is active: render polyline + all stop markers ──
+          <>
+            <Polyline
+              coordinates={activeRoute.routeCoord}
+              strokeColor="#FF9F43"
+              strokeWidth={4}
+            />
+
+            {activeRoute.allStopCoordinates.map((coord, index) => {
+              const style = getWaypointStyle(
+                index,
+                activeRoute.allStopCoordinates.length,
+              );
+              return (
+                <Marker
+                  key={`stop-${index}`}
+                  coordinate={coord}
+                  title={style.label}
+                  pinColor={style.color}
+                />
+              );
+            })}
+            {/* Destination marker — last coordinate of the polyline */}
+            {/* <Marker
+              coordinate={
+                activeRoute.routeCoord[activeRoute.routeCoord.length - 1]
+              }
+              title="Destination"
+              pinColor="green"
+            /> */}
+          </>
+        ) : (
+          // ── No route yet: show the user's current location marker ──
+          // Only render if location permission was denied (blue dot handles it otherwise)
+          !hasLocationPermission && (
+            <Marker
+              coordinate={region}
+              title="Current Location"
+              pinColor="#E74C3C"
+            />
+          )
+        )}
       </MapView>
 
+      {/* The Route Details Card */}
+      {finalRouteData && <RouteDetailsCard data={finalRouteData} />}
+
       {/* Drop in the reusable component — pass API key and selection handler */}
-      <LocationSearchBar
+      {/* <LocationSearchBar
         apiKey={GOOGLE_PLACES_API_KEY}
         placeholder="Starting Point"
         onLocationSelect={handleLocationSelect}
+      /> */}
+
+      <Button
+        title="Run Drive Simple"
+        onPress={() => fetchRouteData(drive_simple)}
+      />
+      <Button
+        title="Run Drive Multi"
+        onPress={() => handleFetchRoute(drive_multi)}
+      />
+      <Button
+        title="Run Drive Multi DT"
+        onPress={() => handleFetchRoute(drive_multi_dt)}
+      />
+      <Button
+        title="Run Two Wheel Simple"
+        onPress={() => handleFetchRoute(two_wheeler_simple)}
+      />
+      <Button
+        title="Run Two Wheel Multi"
+        onPress={() => handleFetchRoute(two_wheeler_multi)}
+      />
+      <Button
+        title="Run Two Wheel Multi DT"
+        onPress={() => handleFetchRoute(two_wheeler_multi_dt)}
+      />
+      <Button title="Run Transit" onPress={() => handleFetchRoute(transit)} />
+      <Button
+        title="Run Transit DT"
+        onPress={() => handleFetchRoute(transit_dt)}
       />
     </View>
   );
