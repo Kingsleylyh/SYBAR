@@ -5,7 +5,6 @@ import {
   Platform,
   TouchableOpacity,
   Keyboard,
-  Modal,
 } from "react-native";
 import {
   GooglePlacesAutocomplete,
