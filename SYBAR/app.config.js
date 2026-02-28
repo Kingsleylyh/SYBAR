@@ -72,6 +72,7 @@ export default {
       },
       googleMapsApiKeyAndroid: process.env.GOOGLE_MAPS_API_KEY_ANDROID,
       googleMapsApiKeyIos: process.env.GOOGLE_MAPS_API_KEY_IOS,
+      geminiApiKey: process.env.GEMINI_API_KEY,
     }
   }
 };

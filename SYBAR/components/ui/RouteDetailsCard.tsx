@@ -52,8 +52,8 @@ export const RouteDetailsCard = ({ data }: { data: RouteResponse | null }) => {
     transform: [
       {
         translateY: withSpring(translateY.value, {
-          damping: 15,
-          stiffness: 100,
+          damping: 50,
+          stiffness: 120,
         }),
       },
     ],
@@ -179,7 +179,7 @@ export const RouteDetailsCard = ({ data }: { data: RouteResponse | null }) => {
 const styles = StyleSheet.create({
   sheet: {
     position: "absolute",
-    bottom: -MAX_HEIGHT + MIN_HEIGHT + 60, // Sits behind the nav bar (adjust 60 based on your nav height)
+    bottom: -MAX_HEIGHT + MIN_HEIGHT + -5, // Sits behind the nav bar (adjust 60 based on your nav height)
     left: 0,
     right: 0,
     height: MAX_HEIGHT,

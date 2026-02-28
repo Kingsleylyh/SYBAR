@@ -1,6 +1,6 @@
-import { RouteRequest } from "@/types/routes";
+import { RouteRequest, LocationData } from "@/types/routes";
 
-// Test Data
+// RouteRequest Test Data
 export const drive_simple: RouteRequest = {
   origin: { latitude: 3.1579, longitude: 101.7123 }, // KLCC
   destination: { latitude: 3.1187, longitude: 101.6775 }, // Mid Valley
@@ -71,6 +71,55 @@ export const transit_dt: RouteRequest = {
   destination: { latitude: 3.1385, longitude: 101.6169 }, // 1 Utama
   travelMode: "TRANSIT",
   departureTime: new Date("2026-03-01T17:30:00Z"),
+};
+
+// LocationData Test Data
+export const KLCC: LocationData = {
+  coordinates: { latitude: 3.1579, longitude: 101.7123 },
+  name: "KLCC",
+  formattedAddress: "Kuala Lumpur City Centre, 50088 Kuala Lumpur",
+};
+
+export const MidValley: LocationData = {
+  coordinates: { latitude: 3.1187, longitude: 101.6775 },
+  name: "Mid Valley Megamall",
+  formattedAddress: "Mid Valley City, Lingkaran Syed Putra, 59200 Kuala Lumpur",
+};
+
+export const PavilionKL: LocationData = {
+  coordinates: { latitude: 3.1478, longitude: 101.713 },
+  name: "Pavilion KL",
+  formattedAddress: "168, Jalan Bukit Bintang, 55100 Kuala Lumpur",
+};
+
+export const SunwayPyramid: LocationData = {
+  coordinates: { latitude: 3.0733, longitude: 101.6069 },
+  name: "Sunway Pyramid",
+  formattedAddress: "3, Jalan PJS 11/15, Bandar Sunway, 47500 Petaling Jaya",
+};
+
+export const IKEACheras: LocationData = {
+  coordinates: { latitude: 3.123, longitude: 101.715 },
+  name: "IKEA Cheras",
+  formattedAddress: "No 2, Jalan Cochrane, Seksyen 90, 55100 Kuala Lumpur",
+};
+
+export const BukitBintangMRT: LocationData = {
+  coordinates: { latitude: 3.1463, longitude: 101.7093 },
+  name: "Bukit Bintang MRT Station",
+  formattedAddress: "Jalan Bukit Bintang, 55100 Kuala Lumpur",
+};
+
+export const KLSentral: LocationData = {
+  coordinates: { latitude: 3.1338, longitude: 101.6864 },
+  name: "KL Sentral",
+  formattedAddress: "Jalan Stesen Sentral, 50470 Kuala Lumpur",
+};
+
+export const MasjidJamek: LocationData = {
+  coordinates: { latitude: 3.1489, longitude: 101.6956 },
+  name: "Masjid Jamek LRT Station",
+  formattedAddress: "Jalan Tun Perak, 50050 Kuala Lumpur",
 };
 
 /*** Request body with fuelConsumption
