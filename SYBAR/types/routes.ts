@@ -14,9 +14,8 @@ export interface RouteRequest {
   destination: LatLng;
   stops?: LatLng[];
   travelMode: "DRIVE" | "TWO_WHEELER" | "TRANSIT";
-  departureTime?: Date | null; // If null, the app assumes "Now"
+  departureTime?: Date | null;
   languageCode?: "en-US";
-  //   optimizeWaypoints?: boolean;
 }
 
 export interface NavigationInstruction {

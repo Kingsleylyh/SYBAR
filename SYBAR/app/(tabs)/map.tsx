@@ -38,7 +38,7 @@ import { RouteDetailsCard } from "@/components/ui/RouteDetailsCard";
 import {
   ChevronLeft,
   Car,
-  Bike, // Using Bike icon for Motorcycle
+  Bike, 
   Bus,
   Plus,
   Minus,
@@ -54,10 +54,8 @@ import {
   runTwoWheelerROTest,
 } from "@/services/TestRouteOptimizer";
 
-// Define the keys from the app.config.js 'extra' section
 const { googleMapsApiKeyAndroid, googleMapsApiKeyIos } =
   Constants.expoConfig?.extra || {};
-// Automatically select the correct key for the Search API
 const GOOGLE_PLACES_API_KEY = Platform.select({
   ios: googleMapsApiKeyIos,
   android: googleMapsApiKeyAndroid,
@@ -91,7 +89,7 @@ export default function MapScreen() {
 
   // Route Planning UI State
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [transportMode, setTransportMode] = useState("DRIVE"); // 'DRIVE', 'TWO_WHEELER', 'TRANSIT'
+  const [transportMode, setTransportMode] = useState("DRIVE"); 
   const [dateTime, setDateTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -110,7 +108,7 @@ export default function MapScreen() {
   const [activeSearchIndex, setActiveSearchIndex] = useState<number | null>(
     null,
   );
-  const [tempSelection, setTempSelection] = useState<any>(null); // Holds location before confirmation
+  const [tempSelection, setTempSelection] = useState<any>(null); 
 
   useEffect(() => {
     initializeLocation();
@@ -145,7 +143,6 @@ export default function MapScreen() {
         "metres",
       );
 
-      // Show map immediately with rough position
       setRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -157,7 +154,7 @@ export default function MapScreen() {
       // accuracy property is in metres — lower is better
       // 50m is a reasonable threshold for street-level address accuracy
       const ACCURACY_THRESHOLD_METRES = 50;
-      const MAX_WAIT_MS = 15000; // give up after 15 seconds
+      const MAX_WAIT_MS = 15000; 
 
       if (
         location.coords.accuracy &&
@@ -167,7 +164,6 @@ export default function MapScreen() {
           `Accuracy ${location.coords.accuracy}m exceeds threshold. Waiting for better fix...`,
         );
         try {
-          // watchPositionAsync streams position updates as GPS improves
           let subscriber: Location.LocationSubscription | null = null;
           const accurateLocation = await Promise.race([
             // Stream updates and resolve when accuracy is good enough
@@ -194,7 +190,6 @@ export default function MapScreen() {
               });
             }),
 
-            // Timeout fallback — use whatever we have after MAX_WAIT_MS
             new Promise<Location.LocationObject>((resolve) =>
               setTimeout(() => {
                 console.warn(
@@ -206,7 +201,6 @@ export default function MapScreen() {
             ),
           ]);
 
-          // Update map to the more accurate position
           setRegion({
             latitude: accurateLocation.coords.latitude,
             longitude: accurateLocation.coords.longitude,
@@ -220,7 +214,6 @@ export default function MapScreen() {
           location = accurateLocation;
         } catch (watchError) {
           console.warn("watchPositionAsync error:", watchError);
-          // Continue with the initial rough fix
         }
       } else {
         console.log(
@@ -270,7 +263,6 @@ export default function MapScreen() {
     }
   };
 
-  // Called by LocationSearchBar when user selects a location
   const handleLocationSelect = (
     newRegion: Region,
     selectedPlaceId: string,
@@ -289,7 +281,6 @@ export default function MapScreen() {
       const result = await fetchRouteData(request);
       setActiveRoute(result);
 
-      // Auto-fit the map to show the entire route
       mapRef.current?.fitToCoordinates(result.routeCoord, {
         edgePadding: { top: 80, right: 40, bottom: 80, left: 40 },
         animated: true,
@@ -306,18 +297,15 @@ export default function MapScreen() {
     departureTime: Date | null,
   ) => {
     try {
-      // Step 1 — Ask Gemini to optimize the visit order
       const optimized = await getOptimizedRoute(start, destinations, mode);
       console.log(
         "Optimized result from Gemini:",
         JSON.stringify(optimized, null, 2),
       );
 
-      // Step 2 — Transform + call Routes API (parallel for TRANSIT, single for others)
       const route = await buildAndFetchRoute(optimized, departureTime);
       console.log("Final merged route:", JSON.stringify(route, null, 2));
 
-      // Step 3 — Update map state
       setActiveRoute(route);
       mapRef.current?.fitToCoordinates(route.routeCoord, {
         edgePadding: { top: 80, right: 40, bottom: 80, left: 40 },
@@ -343,6 +331,18 @@ export default function MapScreen() {
     if (destinations.length > 1) {
       setDestinations(destinations.slice(0, -1));
     }
+  };
+
+  const clearLocations = () => {
+    setOrigin({
+      address: "Current Location",
+      region: null,
+      placeId: "",
+    });
+    setDestinations([
+      { id: Date.now(), address: "", region: null, placeId: "" },
+    ]);
+    setActiveRoute(null);
   };
 
   // --- Search Logic ---
@@ -375,7 +375,6 @@ export default function MapScreen() {
       setDestinations(newDestinations);
     }
 
-    // Reset search state and reopen panel
     setTempSelection(null);
     setActiveSearchIndex(null);
     setIsPanelOpen(true);
@@ -441,11 +440,10 @@ export default function MapScreen() {
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={region}
-          showsUserLocation={hasLocationPermission} // Blue dot only if permitted
-          showsMyLocationButton={hasLocationPermission && !isPanelOpen} // Shows the "Center on Me" button if permitted
+          showsUserLocation={hasLocationPermission} 
+          showsMyLocationButton={hasLocationPermission && !isPanelOpen}
         >
-          {/* <Marker coordinate={region} title="Current Location" /> */}
-          {/* Show markers for origin and destinations if set */}
+ 
           {origin.region && (
             <Marker coordinate={origin.region} pinColor="red" title="Start" />
           )}
@@ -467,7 +465,6 @@ export default function MapScreen() {
 
           {/* Show route on map */}
           {activeRoute ? (
-            // ── Route is active: render polyline + all stop markers ──
             <>
               <Polyline
                 coordinates={activeRoute.routeCoord}
@@ -491,8 +488,7 @@ export default function MapScreen() {
               })}
             </>
           ) : (
-            // ── No route yet: show the user's current location marker ──
-            // Only render if location permission was denied (blue dot handles it otherwise)
+
             !hasLocationPermission && (
               <Marker
                 coordinate={region}
@@ -520,9 +516,12 @@ export default function MapScreen() {
 
         {/* ACTIVE SEARCH OVERLAY (Top Search Bar + Bottom Confirm/Cancel) */}
         {activeSearchIndex !== null && (
-          <View className="absolute top-0 w-full h-full pointer-events-box-none">
+          <View 
+            className="absolute top-0 w-full h-full z-50 pointer-events-box-none"
+            style={{ elevation: 10 }} 
+          >
             {/* Top Search Bar */}
-            <View className="w-full px-5 pt-4 bg-transparent pointer-events-auto">
+            <View className="w-full flex-1 px-5 pt-4 bg-transparent pointer-events-auto">
               <LocationSearchBar
                 apiKey={GOOGLE_PLACES_API_KEY}
                 placeholder={
@@ -533,13 +532,34 @@ export default function MapScreen() {
                 onLocationSelect={handleTempLocationSelect}
               />
             </View>
+
+            {/* Confirm / Cancel buttons */}
+            {tempSelection && (
+              <View 
+                className="absolute bottom-12 w-full flex-row justify-center gap-x-8"
+                pointerEvents="box-none"
+              >
+                <TouchableOpacity 
+                  onPress={cancelLocation} 
+                  className="w-16 h-16 bg-white rounded-full items-center justify-center shadow-xl border border-gray-100"
+                >
+                  <X color="#EF4444" size={32} strokeWidth={2.5} />
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  onPress={confirmLocation} 
+                  className="w-16 h-16 bg-[#22C55E] rounded-full items-center justify-center shadow-xl border border-[#22C55E]"
+                >
+                  <Check color="#FFFFFF" size={32} strokeWidth={2.5} />
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
 
-        {/* PLAN YOUR ROUTE PANEL (Slide over) */}
+        {/* PLAN YOUR ROUTE PANEL */}
         {isPanelOpen && (
           <View className="absolute top-0 left-0 w-full h-full bg-[#F8FAFC] z-50 pt-12 px-5 pb-5">
-            {/* Header */}
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-3xl font-black text-[#0F172A]">
                 Plan Your Route
@@ -556,7 +576,6 @@ export default function MapScreen() {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 40 }}
             >
-              {/* Vehicle Type Selection */}
               <View className="bg-white p-5 rounded-3xl border border-gray-200 mb-5 shadow-sm">
                 <Text className="text-base font-bold text-[#0F172A] mb-4">
                   Vehicle Type
@@ -585,6 +604,7 @@ export default function MapScreen() {
                         >
                           {mode.label}
                         </Text>
+                        
                       </TouchableOpacity>
                     );
                   })}
@@ -642,7 +662,7 @@ export default function MapScreen() {
                   <DateTimePicker
                     value={dateTime}
                     mode="date"
-                    minimumDate={new Date()} // Prevent past dates
+                    minimumDate={new Date()} 
                     display="default"
                     onChange={(event, selectedDate) => {
                       setShowDatePicker(false);
@@ -654,7 +674,7 @@ export default function MapScreen() {
                   <DateTimePicker
                     value={dateTime}
                     mode="time"
-                    minimumDate={new Date()} // Prevent past times
+                    minimumDate={new Date()}
                     display="default"
                     onChange={(event, selectedDate) => {
                       setShowTimePicker(false);
@@ -664,10 +684,15 @@ export default function MapScreen() {
                 )}
               </View>
 
-              {/* Locations Inputs */}
-              <Text className="text-lg font-bold text-[#0F172A] mb-3 ml-2">
-                Enter Locations
-              </Text>
+              {/* Locations Inputs Header */}
+              <View className="flex-row justify-between items-center mb-3 px-2">
+                <Text className="text-lg font-bold text-[#0F172A]">
+                  Enter Locations
+                </Text>
+                <TouchableOpacity onPress={clearLocations}>
+                  <Text className="text-[#EF4444] font-bold text-sm">Clear All</Text>
+                </TouchableOpacity>
+              </View>
 
               {/* Origin Input (Index 0) */}
               <TouchableOpacity
