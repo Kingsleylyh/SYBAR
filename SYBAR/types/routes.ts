@@ -1,0 +1,43 @@
+export interface LatLng {
+  latitude: number;
+  longitude: number;
+}
+
+export interface RouteRequest {
+  origin: LatLng;
+  destination: LatLng;
+  stops?: LatLng[];
+  travelMode: "DRIVE" | "TWO_WHEELER" | "TRANSIT";
+  departureTime?: Date | null; // If null, the app assumes "Now"
+  languageCode?: "en-US"
+  //   optimizeWaypoints?: boolean;
+}
+
+export interface NavigationInstruction {
+  maneuver: string;
+  instructions: string;
+}
+
+export interface RouteLegStep {
+  distanceMeters?: number;
+  navigationInstruction?: NavigationInstruction; // nested, not flat
+}
+
+export interface RouteLeg {
+  distanceMeters?: number;
+  duration?: string;
+  staticDuration?: string;
+  startLocation?: { latLng: LatLng };
+  endLocation?: { latLng: LatLng };
+  steps: RouteLegStep[];
+}
+
+export interface RouteResponse {
+  polyline: string;
+  distanceKm: number;
+  durationMins: number;
+  staticDurationMins?: number; // Time without traffic
+  legs: RouteLeg[];
+  routeCoord: LatLng[];
+  allStopCoordinates: LatLng[]; // origin + intermediates + destination in order
+}
