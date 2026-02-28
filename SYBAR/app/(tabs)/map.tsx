@@ -24,7 +24,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import LocationSearchBar from "../../components/ui/LocationSearchBar";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { fetchRouteData } from "@/services/RouteService";
-import { LatLng, RouteRequest, RouteResponse } from "@/types/routes";
+import {
+  LatLng,
+  LocationData,
+  RouteRequest,
+  RouteResponse,
+  MergedRouteResponse,
+} from "@/types/routes";
+import { getOptimizedRoute } from "@/services/RouteOptimizer";
+import { buildAndFetchRoute } from "@/services/RouteBuilder";
 import { ROUTE_WAYPOINTS, getWaypointStyle } from "@/types/routeMarkers";
 import { RouteDetailsCard } from "@/components/ui/RouteDetailsCard";
 import {
@@ -38,16 +46,13 @@ import {
   Check,
   X,
 } from "lucide-react-native";
+import * as LocationTestData from "@/services/TestData";
 import {
-  drive_multi,
-  drive_multi_dt,
-  drive_simple,
-  transit,
-  transit_dt,
-  two_wheeler_multi,
-  two_wheeler_multi_dt,
-  two_wheeler_simple,
-} from "@/services/TestData";
+  runRouteOptimizerTests,
+  runDriveROTest,
+  runTransitROTest,
+  runTwoWheelerROTest,
+} from "@/services/TestRouteOptimizer";
 
 // Define the keys from the app.config.js 'extra' section
 const { googleMapsApiKeyAndroid, googleMapsApiKeyIos } =
@@ -79,7 +84,9 @@ export default function MapScreen() {
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const [placeId, setPlaceId] = useState("");
   const [address, setAddress] = useState("");
-  const [activeRoute, setActiveRoute] = useState<RouteResponse | null>(null);
+  const [activeRoute, setActiveRoute] = useState<MergedRouteResponse | null>(
+    null,
+  );
   const [finalRouteData, setFinalRouteData] = useState<any>(null);
 
   // Route Planning UI State
@@ -281,7 +288,6 @@ export default function MapScreen() {
     try {
       const result = await fetchRouteData(request);
       setActiveRoute(result);
-      setFinalRouteData(result);
 
       // Auto-fit the map to show the entire route
       mapRef.current?.fitToCoordinates(result.routeCoord, {
@@ -290,6 +296,36 @@ export default function MapScreen() {
       });
     } catch (err) {
       Alert.alert("Error", "Could not calculate route.");
+    }
+  };
+
+  const handleOptimizeAndFetch = async (
+    start: LocationData,
+    destinations: LocationData[],
+    mode: "DRIVE" | "TWO_WHEELER" | "TRANSIT",
+    departureTime: Date | null,
+  ) => {
+    try {
+      // Step 1 — Ask Gemini to optimize the visit order
+      const optimized = await getOptimizedRoute(start, destinations, mode);
+      console.log(
+        "Optimized result from Gemini:",
+        JSON.stringify(optimized, null, 2),
+      );
+
+      // Step 2 — Transform + call Routes API (parallel for TRANSIT, single for others)
+      const route = await buildAndFetchRoute(optimized, departureTime);
+      console.log("Final merged route:", JSON.stringify(route, null, 2));
+
+      // Step 3 — Update map state
+      setActiveRoute(route);
+      mapRef.current?.fitToCoordinates(route.routeCoord, {
+        edgePadding: { top: 80, right: 40, bottom: 80, left: 40 },
+        animated: true,
+      });
+    } catch (err) {
+      console.error("Optimize and fetch error:", err);
+      Alert.alert("Error", "Could not optimize or calculate route.");
     }
   };
 
@@ -358,6 +394,44 @@ export default function MapScreen() {
       </View>
     );
   }
+
+  const runDriveRO = () => {
+    const start = LocationTestData.KLCC;
+    const destinations = [
+      LocationTestData.SunwayPyramid,
+      LocationTestData.IKEACheras,
+      LocationTestData.MidValley,
+      LocationTestData.PavilionKL,
+    ];
+    const travelMode = "DRIVE";
+    handleOptimizeAndFetch(start, destinations, travelMode, null);
+    setIsPanelOpen(false);
+  };
+
+  const runTwoWheelerRO = () => {
+    const start = LocationTestData.KLCC;
+    const destinations = [
+      LocationTestData.SunwayPyramid,
+      LocationTestData.IKEACheras,
+      LocationTestData.MidValley,
+      LocationTestData.PavilionKL,
+    ];
+    const travelMode = "TWO_WHEELER";
+    handleOptimizeAndFetch(start, destinations, travelMode, null);
+    setIsPanelOpen(false);
+  };
+
+  const runTransitRO = () => {
+    const start = LocationTestData.KLCC;
+    const destinations = [
+      LocationTestData.KLSentral,
+      LocationTestData.MasjidJamek,
+      LocationTestData.BukitBintangMRT,
+    ];
+    const travelMode = "TRANSIT";
+    handleOptimizeAndFetch(start, destinations, travelMode, null);
+    setIsPanelOpen(false);
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -461,202 +535,203 @@ export default function MapScreen() {
             </View>
           </View>
         )}
-      </View>
 
-      {/* PLAN YOUR ROUTE PANEL (Slide over) */}
-      {isPanelOpen && (
-        <View className="absolute top-0 left-0 w-full h-full bg-[#F8FAFC] z-50 pt-12 px-5 pb-5">
-          {/* Header */}
-          <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-3xl font-black text-[#0F172A]">
-              Plan Your Route
-            </Text>
-            <TouchableOpacity
-              onPress={() => setIsPanelOpen(false)}
-              className="p-2 bg-white rounded-xl border border-gray-200 shadow-sm"
-            >
-              <ChevronLeft color="#0F172A" size={28} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 40 }}
-          >
-            {/* Vehicle Type Selection */}
-            <View className="bg-white p-5 rounded-3xl border border-gray-200 mb-5 shadow-sm">
-              <Text className="text-base font-bold text-[#0F172A] mb-4">
-                Vehicle Type
+        {/* PLAN YOUR ROUTE PANEL (Slide over) */}
+        {isPanelOpen && (
+          <View className="absolute top-0 left-0 w-full h-full bg-[#F8FAFC] z-50 pt-12 px-5 pb-5">
+            {/* Header */}
+            <View className="flex-row justify-between items-center mb-6">
+              <Text className="text-3xl font-black text-[#0F172A]">
+                Plan Your Route
               </Text>
-              <View className="flex-row justify-between">
-                {[
-                  { id: "DRIVE", icon: Car, label: "Car" },
-                  { id: "TWO_WHEELER", icon: Bike, label: "Motorcycle" },
-                  { id: "TRANSIT", icon: Bus, label: "Transit" },
-                ].map((mode) => {
-                  const isActive = transportMode === mode.id;
-                  return (
-                    <TouchableOpacity
-                      key={mode.id}
-                      onPress={() => setTransportMode(mode.id)}
-                      className={`flex-1 items-center justify-center py-4 rounded-2xl mx-1 border-2 
-                        ${isActive ? "bg-[#0F172A] border-[#0F172A]" : "bg-white border-gray-200"}`}
-                    >
-                      <mode.icon
-                        color={isActive ? "white" : "#0F172A"}
-                        size={28}
-                        className="mb-2"
-                      />
-                      <Text
-                        className={`font-bold text-sm ${isActive ? "text-white" : "text-[#0F172A]"}`}
-                      >
-                        {mode.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-
-            {/* Number of Stops / Destinations */}
-            <View className="bg-white p-5 rounded-3xl border border-gray-200 mb-5 shadow-sm">
-              <Text className="text-base font-bold text-[#0F172A] mb-4">
-                Number of Destinations
-              </Text>
-              <View className="flex-row items-center justify-center gap-x-8">
-                <TouchableOpacity
-                  onPress={removeDestination}
-                  className="p-3 bg-gray-100 rounded-xl border border-gray-200"
-                >
-                  <Minus color="#0F172A" size={24} />
-                </TouchableOpacity>
-                <Text className="text-3xl font-black text-[#0F172A]">
-                  {destinations.length}
-                </Text>
-                <TouchableOpacity
-                  onPress={addDestination}
-                  className="p-3 bg-gray-100 rounded-xl border border-gray-200"
-                >
-                  <Plus color="#0F172A" size={24} />
-                </TouchableOpacity>
-              </View>
-
-              {/* Date & Time Picker */}
-              <View className="mt-6 flex-row justify-between gap-x-3">
-                <TouchableOpacity
-                  onPress={() => setShowDatePicker(true)}
-                  className="flex-1 py-3 bg-blue-50 rounded-xl border border-[#2563EB] items-center"
-                >
-                  <Text className="text-[#2563EB] font-bold">
-                    {dateTime.toLocaleDateString()}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => setShowTimePicker(true)}
-                  className="flex-1 py-3 bg-blue-50 rounded-xl border border-[#2563EB] items-center"
-                >
-                  <Text className="text-[#2563EB] font-bold">
-                    {dateTime.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Native DateTime Pickers */}
-              {showDatePicker && (
-                <DateTimePicker
-                  value={dateTime}
-                  mode="date"
-                  minimumDate={new Date()} // Prevent past dates
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    if (selectedDate) setDateTime(selectedDate);
-                  }}
-                />
-              )}
-              {showTimePicker && (
-                <DateTimePicker
-                  value={dateTime}
-                  mode="time"
-                  minimumDate={new Date()} // Prevent past times
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowTimePicker(false);
-                    if (selectedDate) setDateTime(selectedDate);
-                  }}
-                />
-              )}
-            </View>
-
-            {/* Locations Inputs */}
-            <Text className="text-lg font-bold text-[#0F172A] mb-3 ml-2">
-              Enter Locations
-            </Text>
-
-            {/* Origin Input (Index 0) */}
-            <TouchableOpacity
-              onPress={() => {
-                setActiveSearchIndex(0);
-                setIsPanelOpen(false);
-              }}
-              className="flex-row items-center bg-white p-4 rounded-2xl border-2 border-[#2563EB] mb-3 shadow-sm"
-            >
-              <View className="w-8 h-8 bg-[#2563EB] rounded-full items-center justify-center mr-3">
-                <Text className="text-white font-bold">1</Text>
-              </View>
-              <Text
-                className={`flex-1 ${origin.address === "Current Location" ? "text-gray-400" : "text-[#0F172A] font-medium"}`}
-                numberOfLines={1}
-              >
-                {origin.address || "Starting point"}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Destination Inputs (Index 1 to 9) */}
-            {destinations.map((dest, index) => (
               <TouchableOpacity
-                key={dest.id}
+                onPress={() => setIsPanelOpen(false)}
+                className="p-2 bg-white rounded-xl border border-gray-200 shadow-sm"
+              >
+                <ChevronLeft color="#0F172A" size={28} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 40 }}
+            >
+              {/* Vehicle Type Selection */}
+              <View className="bg-white p-5 rounded-3xl border border-gray-200 mb-5 shadow-sm">
+                <Text className="text-base font-bold text-[#0F172A] mb-4">
+                  Vehicle Type
+                </Text>
+                <View className="flex-row justify-between">
+                  {[
+                    { id: "DRIVE", icon: Car, label: "Car" },
+                    { id: "TWO_WHEELER", icon: Bike, label: "Motorcycle" },
+                    { id: "TRANSIT", icon: Bus, label: "Transit" },
+                  ].map((mode) => {
+                    const isActive = transportMode === mode.id;
+                    return (
+                      <TouchableOpacity
+                        key={mode.id}
+                        onPress={() => setTransportMode(mode.id)}
+                        className={`flex-1 items-center justify-center py-4 rounded-2xl mx-1 border-2 
+                        ${isActive ? "bg-[#0F172A] border-[#0F172A]" : "bg-white border-gray-200"}`}
+                      >
+                        <mode.icon
+                          color={isActive ? "white" : "#0F172A"}
+                          size={28}
+                          className="mb-2"
+                        />
+                        <Text
+                          className={`font-bold text-sm ${isActive ? "text-white" : "text-[#0F172A]"}`}
+                        >
+                          {mode.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Number of Stops / Destinations */}
+              <View className="bg-white p-5 rounded-3xl border border-gray-200 mb-5 shadow-sm">
+                <Text className="text-base font-bold text-[#0F172A] mb-4">
+                  Number of Destinations
+                </Text>
+                <View className="flex-row items-center justify-center gap-x-8">
+                  <TouchableOpacity
+                    onPress={removeDestination}
+                    className="p-3 bg-gray-100 rounded-xl border border-gray-200"
+                  >
+                    <Minus color="#0F172A" size={24} />
+                  </TouchableOpacity>
+                  <Text className="text-3xl font-black text-[#0F172A]">
+                    {destinations.length}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={addDestination}
+                    className="p-3 bg-gray-100 rounded-xl border border-gray-200"
+                  >
+                    <Plus color="#0F172A" size={24} />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Date & Time Picker */}
+                <View className="mt-6 flex-row justify-between gap-x-3">
+                  <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    className="flex-1 py-3 bg-blue-50 rounded-xl border border-[#2563EB] items-center"
+                  >
+                    <Text className="text-[#2563EB] font-bold">
+                      {dateTime.toLocaleDateString()}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setShowTimePicker(true)}
+                    className="flex-1 py-3 bg-blue-50 rounded-xl border border-[#2563EB] items-center"
+                  >
+                    <Text className="text-[#2563EB] font-bold">
+                      {dateTime.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Native DateTime Pickers */}
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={dateTime}
+                    mode="date"
+                    minimumDate={new Date()} // Prevent past dates
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowDatePicker(false);
+                      if (selectedDate) setDateTime(selectedDate);
+                    }}
+                  />
+                )}
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={dateTime}
+                    mode="time"
+                    minimumDate={new Date()} // Prevent past times
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowTimePicker(false);
+                      if (selectedDate) setDateTime(selectedDate);
+                    }}
+                  />
+                )}
+              </View>
+
+              {/* Locations Inputs */}
+              <Text className="text-lg font-bold text-[#0F172A] mb-3 ml-2">
+                Enter Locations
+              </Text>
+
+              {/* Origin Input (Index 0) */}
+              <TouchableOpacity
                 onPress={() => {
-                  setActiveSearchIndex(index + 1);
+                  setActiveSearchIndex(0);
                   setIsPanelOpen(false);
                 }}
-                className="flex-row items-center bg-white p-4 rounded-2xl border border-gray-300 mb-3 shadow-sm"
+                className="flex-row items-center bg-white p-4 rounded-2xl border-2 border-[#2563EB] mb-3 shadow-sm"
               >
-                <View className="w-8 h-8 bg-[#0F172A] rounded-full items-center justify-center mr-3">
-                  <Text className="text-white font-bold">{index + 2}</Text>
+                <View className="w-8 h-8 bg-[#2563EB] rounded-full items-center justify-center mr-3">
+                  <Text className="text-white font-bold">1</Text>
                 </View>
                 <Text
-                  className={`flex-1 ${!dest.address ? "text-gray-400" : "text-[#0F172A] font-medium"}`}
+                  className={`flex-1 ${origin.address === "Current Location" ? "text-gray-400" : "text-[#0F172A] font-medium"}`}
                   numberOfLines={1}
                 >
-                  {dest.address || `Destination ${index + 1}`}
+                  {origin.address || "Starting point"}
                 </Text>
               </TouchableOpacity>
-            ))}
 
-            {/* Find Route Action Button */}
-            <TouchableOpacity className="bg-[#0F172A] py-5 rounded-full items-center mt-6 shadow-md border-2 border-[#1E293B]">
-              <Text className="text-white font-black text-lg tracking-wide">
-                Find Route
-              </Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-      )}
+              {/* Destination Inputs (Index 1 to 9) */}
+              {destinations.map((dest, index) => (
+                <TouchableOpacity
+                  key={dest.id}
+                  onPress={() => {
+                    setActiveSearchIndex(index + 1);
+                    setIsPanelOpen(false);
+                  }}
+                  className="flex-row items-center bg-white p-4 rounded-2xl border border-gray-300 mb-3 shadow-sm"
+                >
+                  <View className="w-8 h-8 bg-[#0F172A] rounded-full items-center justify-center mr-3">
+                    <Text className="text-white font-bold">{index + 2}</Text>
+                  </View>
+                  <Text
+                    className={`flex-1 ${!dest.address ? "text-gray-400" : "text-[#0F172A] font-medium"}`}
+                    numberOfLines={1}
+                  >
+                    {dest.address || `Destination ${index + 1}`}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+
+              {/* Find Route Action Button */}
+              <TouchableOpacity
+                onPress={runTransitRO}
+                className="bg-[#0F172A] py-5 rounded-full items-center mt-6 shadow-md border-2 border-[#1E293B]"
+              >
+                <Text className="text-white font-black text-lg tracking-wide">
+                  Find Route
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        )}
+      </View>
 
       {/* The Route Details Card */}
-      {finalRouteData && <RouteDetailsCard data={finalRouteData} />}
-
+      {activeRoute && <RouteDetailsCard data={activeRoute} />}
       {/* Drop in the reusable component — pass API key and selection handler */}
       {/* <LocationSearchBar
         apiKey={GOOGLE_PLACES_API_KEY}
         placeholder="Starting Point"
         onLocationSelect={handleLocationSelect}
       /> */}
-
       {/* <Button
         title="Run Drive Simple"
         onPress={() => fetchRouteData(drive_simple)}
@@ -686,6 +761,10 @@ export default function MapScreen() {
         title="Run Transit DT"
         onPress={() => handleFetchRoute(transit_dt)}
       /> */}
+      {/* <Button title="Run Optimizer Tests" onPress={runRouteOptimizerTests} />
+      <Button title="Run Drive RO Tests" onPress={runDriveRO} />
+      <Button title="Run Two Wheeler RO Tests" onPress={runTwoWheelerRO} />
+      <Button title="Run Transit RO Tests" onPress={runTransitRO} /> */}
     </SafeAreaView>
   );
 }

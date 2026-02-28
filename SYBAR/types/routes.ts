@@ -3,13 +3,19 @@ export interface LatLng {
   longitude: number;
 }
 
+export interface LocationData {
+  coordinates: LatLng;
+  name?: string;
+  formattedAddress?: string;
+}
+
 export interface RouteRequest {
   origin: LatLng;
   destination: LatLng;
   stops?: LatLng[];
   travelMode: "DRIVE" | "TWO_WHEELER" | "TRANSIT";
   departureTime?: Date | null; // If null, the app assumes "Now"
-  languageCode?: "en-US"
+  languageCode?: "en-US";
   //   optimizeWaypoints?: boolean;
 }
 
@@ -40,4 +46,14 @@ export interface RouteResponse {
   legs: RouteLeg[];
   routeCoord: LatLng[];
   allStopCoordinates: LatLng[]; // origin + intermediates + destination in order
+}
+
+export interface MergedRouteResponse {
+  polyline: string; // not used for display — coordinates is used instead
+  distanceKm: number; // sum of all segments
+  durationMins: number; // sum of all segments
+  staticDurationMins?: number;
+  legs: RouteLeg[]; // all legs across all segments concatenated
+  routeCoord: LatLng[]; // chained across all segments
+  allStopCoordinates: LatLng[];
 }
