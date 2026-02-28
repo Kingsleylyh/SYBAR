@@ -41,7 +41,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/SYBAR-Logo.png"
     },
     "plugins": [
       "expo-router",

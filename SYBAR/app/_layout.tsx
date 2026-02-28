@@ -39,7 +39,7 @@ export default function RootLayout() {
             SYBAR
           </Text>
           <Text className="text-[#64748B] text-sm font-medium tracking-wide">
-            Live Route Updates
+            Search Your Best Available Route
           </Text>
         </View>
       </LinearGradient>
@@ -48,6 +48,8 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="signup" />
       <Stack.Screen name="(tabs)" />
     </Stack>
   );

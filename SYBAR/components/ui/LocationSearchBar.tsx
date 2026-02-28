@@ -68,7 +68,6 @@ export default function LocationSearchBar({
       setInputValue(selectedText);
       setCurrentSessionToken(generateToken()); // Refresh session for next search
 
-      // Dismiss list and keyboard, collapse overlay after selection
       setTimeout(() => {
         autocompleteRef.current?.setAddressText(selectedText);
         autocompleteRef.current?.blur();

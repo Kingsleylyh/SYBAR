@@ -13,7 +13,6 @@ export default {
     ios: {
       bundleIdentifier: "com.rt4.sybar",
       config: {
-        // Uses the key from your .env file
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY_IOS
       },
       supportsTablet: true,
@@ -44,9 +43,10 @@ export default {
     },
     web: {
       output: "static",
-      favicon: "./assets/images/favicon.png"
+      favicon: "./assets/images/SYBAR-Logo.png"
     },
     plugins: [
+      "@react-native-community/datetimepicker",
       "expo-router",
       [
         "expo-splash-screen",
