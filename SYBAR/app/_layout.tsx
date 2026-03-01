@@ -3,6 +3,9 @@ import { View, Text, Image } from "react-native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
+import * as NavigationBar from "expo-navigation-bar";
+import { NavigationBarBehavior } from 'expo-navigation-bar';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -12,6 +15,8 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
+        await NavigationBar.setBehaviorAsync('sticky-immersive' as NavigationBarBehavior);
+        await NavigationBar.setVisibilityAsync("hidden");
         await new Promise((resolve) => setTimeout(resolve, 2500));
       } catch (e) {
         console.warn(e);
@@ -29,6 +34,7 @@ export default function RootLayout() {
         colors={["#FFFFFF", "#E2E8F0"]}
         className="flex-1 items-center justify-center relative"
       >
+        <StatusBar hidden={true} />
         <Image
           source={require("../assets/images/SYBAR-Logo.png")}
           className="w-32 h-32 rounded-3xl bg-white shadow-lg"
@@ -47,10 +53,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" />
-      <Stack.Screen name="signup" />
-      <Stack.Screen name="(tabs)" />
-    </Stack>
+    <>
+      <StatusBar style="dark" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="login" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+    </>
   );
 }
