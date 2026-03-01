@@ -1,5 +1,10 @@
 # SYBAR (Search Your Best Available Route)
-An AI-powered route planning mobile app that helps you plan your best route and safe your time.
+An AI-powered route planning mobile app that integrates centralized payment tracking to help you plan the best routes, save time, and track transactions.
+
+## Problem Statements
+1. Lack of route optimization in route planning leads to traffic congestion, which leads to carbon emissions and environmental impact.
+2. Multi-destinations route planning is not available in public transport context.
+3. Payment is separated with maps and user struggle to keep track in transactions.
 
 ## SDGs
 - SDG 11: Sustainable Cities and Communities
