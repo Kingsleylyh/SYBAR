@@ -345,6 +345,59 @@ export default function MapScreen() {
     setActiveRoute(null);
   };
 
+  const executeLiveRoute = () => {
+    // 1. Validate that the user actually selected a starting point
+    if (!origin.region) {
+      Alert.alert("Missing Start Point", "Please select a starting location.");
+      return;
+    }
+
+    // 2. Filter out any empty destination boxes the user didn't fill in
+    const validDestinations = destinations.filter((dest) => dest.region !== null);
+
+    if (validDestinations.length === 0) {
+      Alert.alert("Missing Destination", "Please select at least one destination.");
+      return;
+    }
+
+    // 3. Format the Origin into the required LocationData interface
+    const startLocation: LocationData = {
+      coordinates: {
+        latitude: origin.region.latitude,
+        longitude: origin.region.longitude,
+      },
+      name: origin.address,
+      formattedAddress: origin.address,
+    };
+
+    // 4. Format the array of Destinations into LocationData interfaces
+    const destLocations: LocationData[] = validDestinations.map((dest) => ({
+      coordinates: {
+        latitude: dest.region!.latitude,
+        longitude: dest.region!.longitude,
+      },
+      name: dest.address,
+      formattedAddress: dest.address,
+    }));
+
+    // 5. Close the side panel
+    setIsPanelOpen(false);
+    
+    // --- NEW FIX: Prevent the "Timestamp in the past" API crash ---
+    const now = new Date();
+    // Add a 60-second buffer. If the time is in the past or too close to 'now', make it null.
+    const isPastTime = dateTime.getTime() < (now.getTime() + 60000);
+    const safeDepartureTime = isPastTime ? null : dateTime;
+
+    // 6. Trigger the Gemini Optimization!
+    handleOptimizeAndFetch(
+      startLocation, 
+      destLocations, 
+      transportMode as "DRIVE" | "TWO_WHEELER" | "TRANSIT", 
+      safeDepartureTime // <-- using the safe time variable here
+    );
+  };
+
   // --- Search Logic ---
   const handleTempLocationSelect = (
     newRegion: Region,
@@ -394,43 +447,43 @@ export default function MapScreen() {
     );
   }
 
-  const runDriveRO = () => {
-    const start = LocationTestData.KLCC;
-    const destinations = [
-      LocationTestData.SunwayPyramid,
-      LocationTestData.IKEACheras,
-      LocationTestData.MidValley,
-      LocationTestData.PavilionKL,
-    ];
-    const travelMode = "DRIVE";
-    handleOptimizeAndFetch(start, destinations, travelMode, null);
-    setIsPanelOpen(false);
-  };
+  // const runDriveRO = () => {
+  //   const start = LocationTestData.KLCC;
+  //   const destinations = [
+  //     LocationTestData.SunwayPyramid,
+  //     LocationTestData.IKEACheras,
+  //     LocationTestData.MidValley,
+  //     LocationTestData.PavilionKL,
+  //   ];
+  //   const travelMode = "DRIVE";
+  //   handleOptimizeAndFetch(start, destinations, travelMode, null);
+  //   setIsPanelOpen(false);
+  // };
 
-  const runTwoWheelerRO = () => {
-    const start = LocationTestData.KLCC;
-    const destinations = [
-      LocationTestData.SunwayPyramid,
-      LocationTestData.IKEACheras,
-      LocationTestData.MidValley,
-      LocationTestData.PavilionKL,
-    ];
-    const travelMode = "TWO_WHEELER";
-    handleOptimizeAndFetch(start, destinations, travelMode, null);
-    setIsPanelOpen(false);
-  };
+  // const runTwoWheelerRO = () => {
+  //   const start = LocationTestData.KLCC;
+  //   const destinations = [
+  //     LocationTestData.SunwayPyramid,
+  //     LocationTestData.IKEACheras,
+  //     LocationTestData.MidValley,
+  //     LocationTestData.PavilionKL,
+  //   ];
+  //   const travelMode = "TWO_WHEELER";
+  //   handleOptimizeAndFetch(start, destinations, travelMode, null);
+  //   setIsPanelOpen(false);
+  // };
 
-  const runTransitRO = () => {
-    const start = LocationTestData.KLCC;
-    const destinations = [
-      LocationTestData.KLSentral,
-      LocationTestData.MasjidJamek,
-      LocationTestData.BukitBintangMRT,
-    ];
-    const travelMode = "TRANSIT";
-    handleOptimizeAndFetch(start, destinations, travelMode, null);
-    setIsPanelOpen(false);
-  };
+  // const runTransitRO = () => {
+  //   const start = LocationTestData.KLCC;
+  //   const destinations = [
+  //     LocationTestData.KLSentral,
+  //     LocationTestData.MasjidJamek,
+  //     LocationTestData.BukitBintangMRT,
+  //   ];
+  //   const travelMode = "TRANSIT";
+  //   handleOptimizeAndFetch(start, destinations, travelMode, null);
+  //   setIsPanelOpen(false);
+  // };
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -468,7 +521,7 @@ export default function MapScreen() {
             <>
               <Polyline
                 coordinates={activeRoute.routeCoord}
-                strokeColor="#FF9F43"
+                strokeColor="#0000FF"
                 strokeWidth={4}
               />
 
@@ -514,7 +567,7 @@ export default function MapScreen() {
           </View>
         )}
 
-        {/* ACTIVE SEARCH OVERLAY (Top Search Bar + Bottom Confirm/Cancel) */}
+        {/* ACTIVE SEARCH OVERLAY */}
         {activeSearchIndex !== null && (
           <View 
             className="absolute top-0 w-full h-full z-50 pointer-events-box-none"
@@ -737,7 +790,7 @@ export default function MapScreen() {
 
               {/* Find Route Action Button */}
               <TouchableOpacity
-                onPress={runTransitRO}
+                onPress={executeLiveRoute}
                 className="bg-[#0F172A] py-5 rounded-full items-center mt-6 shadow-md border-2 border-[#1E293B]"
               >
                 <Text className="text-white font-black text-lg tracking-wide">
