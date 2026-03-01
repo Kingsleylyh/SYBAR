@@ -35,3 +35,20 @@ An AI-powered route planning mobile app that integrates centralized payment trac
 - Google Cloud Platform
 - Google AI Studio
 - Firebase Studio
+
+## Technical Implementation
+**Google Maps Geocoding API** 
+- To retrieve accurate details of a location with its latitude and longitude (formatted_address and place_id)
+- We used it to retrieve details of user's current location
+
+**Google Maps Places API (Autocomplete)**
+- To facilitate location searching by providing location suggestion list based on user input and retrieve accurate details of the selected location
+- We used it to allow users to enter the location name or address partially, and select the desired location from the suggestion list. This also ensures that the location details are accurate and unambiguous
+
+**Gemini 3 Flash Preview Model API**
+- To optimize the location order of the set of destinations provided by users, and return the response to prepare for the API request to call Google Maps Routes API
+- We fix a travel mode (driving, two-wheeler, transit) and a starting point, and provide a set of destinations in random sequence. Then, Gemini will have to provide the best and most optimized route based on the given details. We will parse the Gemini JSON response and form an appropriate Google Maps Routes API request format with the details.
+
+**Google Maps Routes API**
+- To retrieve the best available route based on the given set of locations and travel mode.
+- We pass the optimized sequence of locations, travel mode, departure time (if present) into Google Maps Routes API, then retrieve the response to display the route on the map, display the routes details and navigation instructions for each stop/leg in our Route Details Card 
