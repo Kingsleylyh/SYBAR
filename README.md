@@ -1,5 +1,4 @@
-# SYBAR
-Search Your Best Available Route\
+# SYBAR (Search Your Best Available Route)
 An AI-powered route planning mobile app that helps you plan your best route and safe your time.
 
 ## SDGs
