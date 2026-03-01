@@ -6,6 +6,11 @@ An AI-powered route planning mobile app that integrates centralized payment trac
 2. Multi-destinations route planning is not available in public transport context.
 3. Payment is separated with maps and user struggle to keep track in transactions.
 
+## Purposes
+1. To develop a route planning module that incorporates Google's Gemini AI model to optimize routes based on a set of locations provided by the user.
+2. To cater for multiple main travel modes (driving, two-wheeler, transit) in the route planning module.
+3. To develop an integrated and centralized payment tracking module, it tracks transactions like tolls, parking fees and more.
+
 ## SDGs
 - SDG 11: Sustainable Cities and Communities
   - Target 11.2
