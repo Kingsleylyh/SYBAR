@@ -61,23 +61,27 @@ An AI-powered route planning mobile app that integrates centralized payment trac
 ## Technical Setup
 
 **1. Clone the repository.** Open your terminal and run the following command to clone the project to your local machine:
+`Bash`
 ```bash
 git clone https://github.com/Kingsleylyh/SYBAR.git
 ```
 
 **2. Open the project folder in your IDE and change directory into SYBAR folder.**
+`Bash`
 ```cd
 cd SYBAR
 ```
 The directory should look like this `.../SYBAR/SYBAR`
 
 **3. Install all the dependencies.**
+`Bash`
 ```bash
 npx expo install
 ```
 
 **4. Create an `.env` file and insert your Google Maps API Key for Android and iOS, and your Gemini API Key.**
 Remember to create in this `.../SYBAR/SYBAR` root directory. There is an `.env.template` file for reference.
+`.env`
 ```.env
 GOOGLE_MAPS_API_KEY_ANDROID=
 GOOGLE_MAPS_API_KEY_IOS=
@@ -85,6 +89,7 @@ GEMINI_API_KEY=
 ```
 
 **5. To run the project, use this command:**
+`Bash`
 ```bash
 npx expo start -c
 ```
@@ -98,6 +103,7 @@ It will run the build and open on your test phone's Expo Go.
 
 **7. Login to Expo Go.**
 Once you scanned the QR, the terminal will show a confirmation as below:
+`Node`
 ```node
 > Log in
   Proceed anonymously
