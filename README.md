@@ -63,6 +63,7 @@ An AI-powered route planning mobile app that integrates centralized payment trac
 **1. Clone the repository.** Open your terminal and run the following command to clone the project to your local machine:
 ```bash
 git clone https://github.com/Kingsleylyh/SYBAR.git
+```
 
 **2. Open the project folder in your IDE and change directory into SYBAR folder.**
 ```cd
