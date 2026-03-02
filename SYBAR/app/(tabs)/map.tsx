@@ -46,13 +46,13 @@ import {
   Check,
   X,
 } from "lucide-react-native";
-import * as LocationTestData from "@/services/TestData";
-import {
-  runRouteOptimizerTests,
-  runDriveROTest,
-  runTransitROTest,
-  runTwoWheelerROTest,
-} from "@/services/TestRouteOptimizer";
+// import * as LocationTestData from "@/services/TestData";
+// import {
+//   runRouteOptimizerTests,
+//   runDriveROTest,
+//   runTransitROTest,
+//   runTwoWheelerROTest,
+// } from "@/services/TestRouteOptimizer";
 
 const { googleMapsApiKeyAndroid, googleMapsApiKeyIos } =
   Constants.expoConfig?.extra || {};
@@ -71,7 +71,6 @@ export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
   const [loading, setLoading] = useState(true);
 
-  // Set initial state to the Malaysia fallback
   const MALAYSIA_FALLBACK: Region = {
     latitude: 3.139,
     longitude: 101.6869,
